@@ -1,6 +1,13 @@
 plugins {
     id 'java'
+    id 'idea'
+    id 'jacoco'
 }
+apply plugin: 'application'
+
+sourceCompatibility = 11
+
+mainClassName = 'org.abondar.experimental.webcrawler.WebCrawler'
 
 group 'org.abondar.experimental'
 version '0.1-SNAPSHOT'
@@ -10,5 +17,16 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation "org.jsoup:jsoup:$jsoupVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'org.abondar.experimental.webcrawler.WebCrawler'
+        )
+    }
 }
