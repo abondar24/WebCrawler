@@ -1,13 +1,11 @@
 plugins {
     id 'java'
-    id 'idea'
     id 'jacoco'
 }
-apply plugin: 'application'
+apply plugin: 'java'
+
 
 sourceCompatibility = 11
-
-mainClassName = 'org.abondar.experimental.webcrawler.WebCrawler'
 
 group 'org.abondar.experimental'
 version '0.1-SNAPSHOT'
@@ -18,8 +16,11 @@ repositories {
 
 dependencies {
     implementation "org.jsoup:jsoup:$jsoupVersion"
+    implementation "org.slf4j:slf4j-api:$slf4jVersion"
+
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
 }
 
@@ -29,4 +30,9 @@ jar {
                 'Main-Class': 'org.abondar.experimental.webcrawler.WebCrawler'
         )
     }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
+
