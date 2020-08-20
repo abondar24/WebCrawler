@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'jacoco'
+    id 'idea'
 }
 apply plugin: 'java'
 
@@ -36,3 +37,6 @@ jar {
     }
 }
 
+test {
+    useJUnitPlatform()
+}
