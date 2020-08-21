@@ -8,12 +8,16 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class Crawler {
 
@@ -48,7 +52,7 @@ public class Crawler {
 
     }
 
-    private Set<String> downloadFromGoogle(String term) {
+    public Set<String> downloadFromGoogle(String term) {
         Set<String> res = new HashSet<>();
         try {
             var doc = Jsoup.connect(SEARCH_URL + term).get();
@@ -69,7 +73,7 @@ public class Crawler {
         }
     }
 
-    private Set<String> filterLinks(Set<String> unfiltered) {
+    public Set<String> filterLinks(Set<String> unfiltered) {
 
         Set<String> fitlered = new HashSet<>();
 
@@ -86,7 +90,7 @@ public class Crawler {
         return fitlered;
     }
 
-    private List<String> downloadLinks(Set<String> links) {
+    public List<String> downloadLinks(Set<String> links) {
         List<String> jsLibs = new ArrayList<>();
         links.forEach(l -> jsLibs.addAll(downloadLink(l)));
 
@@ -94,7 +98,7 @@ public class Crawler {
     }
 
 
-    private List<String> downloadLink(String link) {
+    public List<String> downloadLink(String link) {
 
         var executor = Executors.newSingleThreadExecutor();
 
@@ -140,8 +144,35 @@ public class Crawler {
         }
     }
 
-    //TODO: implement filter
-    private List<String> filterResults(List<String> jsLibs) {
-        return jsLibs;
+
+    public List<String> filterResults(List<String> jsLibs) {
+        var libCount = new HashMap<String,Integer>();
+
+        jsLibs.forEach(l->{
+            if (!libCount.containsKey(l)){
+                libCount.put(l,1);
+            } else {
+                var count = libCount.get(l);
+                libCount.put(l, count + 1);
+            }
+        });
+
+        var sortedLibCount = libCount.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue,(e1,e2) -> e1, LinkedHashMap::new));
+
+        var libArr = new Map.Entry[sortedLibCount.size()];
+        sortedLibCount.entrySet().toArray(libArr);
+
+        List<String> res= new ArrayList<>();
+        res.add((String) libArr[0].getKey());
+        res.add((String) libArr[1].getKey());
+        res.add((String) libArr[2].getKey());
+        res.add((String) libArr[3].getKey());
+        res.add((String) libArr[4].getKey());
+
+
+        return res;
     }
 }
