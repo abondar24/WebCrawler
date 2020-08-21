@@ -28,16 +28,13 @@ public class Crawler {
     private static final String HTTP_DELIMITER = "://";
     private static final String SCRIPT_KEY = "script";
     private static final String SRC_KEY = "src";
-    private static String SEARCH_URL = "https://www.google.com/search?q=";
+    private static final String SEARCH_URL = "https://www.google.com/search?q=";
 
     private static final String DELIMITER = "/";
 
     private static final String JS_EXTENSION = "js";
 
 
-    public static void setSearchUrl(String searchUrl) {
-        SEARCH_URL = searchUrl;
-    }
 
     public List<String> Crawl(String term) {
         var links = downloadFromGoogle(term);
@@ -68,7 +65,7 @@ public class Crawler {
             return filterLinks(res);
 
         } catch (IOException ex) {
-            logger.error("Failed to retrieve links from google");
+            logger.error(ex.getMessage());
             return res;
         }
     }
@@ -94,7 +91,7 @@ public class Crawler {
         List<String> jsLibs = new ArrayList<>();
         links.forEach(l -> jsLibs.addAll(downloadLink(l)));
 
-        return filterResults(jsLibs);
+        return countResults(jsLibs);
     }
 
 
@@ -145,7 +142,7 @@ public class Crawler {
     }
 
 
-    public List<String> filterResults(List<String> jsLibs) {
+    public List<String> countResults(List<String> jsLibs) {
         var libCount = new HashMap<String,Integer>();
 
         jsLibs.forEach(l->{
@@ -159,18 +156,26 @@ public class Crawler {
 
         var sortedLibCount = libCount.entrySet()
                 .stream()
-                .sorted(Map.Entry.comparingByValue())
+                .sorted((Map.Entry.<String, Integer>comparingByValue().reversed()))
                 .collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue,(e1,e2) -> e1, LinkedHashMap::new));
 
         var libArr = new Map.Entry[sortedLibCount.size()];
         sortedLibCount.entrySet().toArray(libArr);
 
         List<String> res= new ArrayList<>();
-        res.add((String) libArr[0].getKey());
-        res.add((String) libArr[1].getKey());
-        res.add((String) libArr[2].getKey());
-        res.add((String) libArr[3].getKey());
-        res.add((String) libArr[4].getKey());
+
+        if (libArr.length>=5){
+            res.add((String) libArr[0].getKey());
+            res.add((String) libArr[1].getKey());
+            res.add((String) libArr[2].getKey());
+            res.add((String) libArr[3].getKey());
+            res.add((String) libArr[4].getKey());
+        } else {
+            for (Map.Entry lib : libArr){
+                res.add((String) lib.getKey());
+            }
+        }
+
 
 
         return res;
